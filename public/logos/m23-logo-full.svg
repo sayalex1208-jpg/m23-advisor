@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" aria-label="M23 Advisor - ជំនួយការស្វាយចន្ទី">
+  <defs>
+    <linearGradient id="nutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="appleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(16, 10)">
+    <path d="M48,18 C48,8 42,2 37,2 C32,2 26,8 26,18 C26,28 30,36 37,38 C44,36 48,28 48,18Z" fill="url(#appleGrad)" opacity="0.9"/>
+    <line x1="37" y1="38" x2="37" y2="48" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M37,42 C42,36 52,34 56,38 C52,42 42,44 37,42Z" fill="#22c55e"/>
+    <line x1="38" y1="41" x2="52" y2="37" stroke="#065f46" stroke-width="0.6" opacity="0.4"/>
+    <path d="M37,44 C32,39 24,38 21,41 C24,44 32,46 37,44Z" fill="#34d399" opacity="0.85"/>
+    <path d="M20,58 C12,62 8,72 12,82 C16,92 26,98 38,98 C50,98 58,92 62,82 C66,72 62,62 54,58 C48,55 42,58 37,64 C32,58 26,55 20,58Z" fill="url(#nutGrad)"/>
+    <path d="M25,68 C30,62 34,62 37,66 C40,62 44,62 49,68" fill="none" stroke="#065f46" stroke-width="1.2" opacity="0.25" stroke-linecap="round"/>
+  </g>
+  <text x="110" y="62" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="38" fill="#fafaf9" letter-spacing="-0.5">M23<tspan fill="#34d399" font-weight="600"> Advisor</tspan></text>
+  <text x="110" y="90" font-family="'Noto Sans Khmer', 'Khmer OS', sans-serif" font-weight="400" font-size="16" fill="#34d399" opacity="0.85">ជំនួយការស្វាយចន្ទី</text>
+</svg>

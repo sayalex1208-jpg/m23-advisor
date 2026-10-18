@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="M23 Advisor Icon">
+  <defs>
+    <linearGradient id="iconNutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="iconAppleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065f46"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="96" ry="96" fill="url(#bgGrad)"/>
+  <rect x="24" y="24" width="464" height="464" rx="80" ry="80" fill="none" stroke="#34d399" stroke-width="2" opacity="0.12"/>
+  <g transform="translate(256, 240) scale(2.8)">
+    <path d="M0,-62 C-14,-62 -24,-50 -24,-36 C-24,-20 -14,-8 0,-4 C14,-8 24,-20 24,-36 C24,-50 14,-62 0,-62Z" fill="url(#iconAppleGrad)" opacity="0.92"/>
+    <ellipse cx="-6" cy="-42" rx="6" ry="10" fill="#fef3c7" opacity="0.25"/>
+    <path d="M0,-4 L0,12" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M0,6 C10,-4 26,-8 34,-2 C28,6 12,10 0,6Z" fill="#22c55e"/>
+    <path d="M2,5 L28,-1" stroke="#065f46" stroke-width="0.8" opacity="0.35" stroke-linecap="round"/>
+    <path d="M0,9 C-8,1 -20,-1 -26,4 C-20,10 -8,13 0,9Z" fill="#34d399" opacity="0.8"/>
+    <path d="M-32,26 C-48,34 -56,52 -48,72 C-40,90 -22,100 0,100 C22,100 40,90 48,72 C56,52 48,34 32,26 C22,20 12,24 0,36 C-12,24 -22,20 -32,26Z" fill="url(#iconNutGrad)"/>
+    <path d="M-22,42 C-12,32 -4,32 0,38 C4,32 12,32 22,42" fill="none" stroke="#065f46" stroke-width="1.8" opacity="0.2" stroke-linecap="round"/>
+    <ellipse cx="-12" cy="60" rx="12" ry="18" fill="#6ee7b7" opacity="0.15"/>
+  </g>
+</svg>
