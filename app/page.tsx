@@ -14,6 +14,7 @@ import type { ProfileData, PreferencesData } from "@/components/screens/Settings
 import WelcomeScreen from "@/components/WelcomeScreen";
 import WelcomeBackScreen from "@/components/WelcomeBackScreen";
 import type { Language } from "@/types/agronomy";
+import { STORAGE_KEYS } from "@/constants/storageKeys";
 
 const DEFAULT_FIELD_DATA: FieldDataModel = {
   area: "0.6",
@@ -52,22 +53,22 @@ export default function Home() {
   // Load persisted state from localStorage on client mount
   useEffect(() => {
     try {
-      const savedLang = localStorage.getItem("m23_app_lang") as Language | null;
+      const savedLang = localStorage.getItem(STORAGE_KEYS.APP_LANG) as Language | null;
       if (savedLang === "km" || savedLang === "en") {
         setLang(savedLang);
       }
 
-      const savedField = localStorage.getItem("m23_field_data");
+      const savedField = localStorage.getItem(STORAGE_KEYS.FIELD_DATA);
       if (savedField) {
         setFieldData(JSON.parse(savedField));
       }
 
-      const savedProfile = localStorage.getItem("m23_profile_data");
+      const savedProfile = localStorage.getItem(STORAGE_KEYS.PROFILE_DATA);
       if (savedProfile) {
         setProfile(JSON.parse(savedProfile));
       }
 
-      const savedPrefs = localStorage.getItem("m23_preferences_data");
+      const savedPrefs = localStorage.getItem(STORAGE_KEYS.PREFERENCES_DATA);
       if (savedPrefs) {
         setPreferences(JSON.parse(savedPrefs));
       }
@@ -82,7 +83,7 @@ export default function Home() {
   function handleSaveFieldData(newData: FieldDataModel) {
     setFieldData(newData);
     try {
-      localStorage.setItem("m23_field_data", JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEYS.FIELD_DATA, JSON.stringify(newData));
     } catch {
       // Ignore storage errors
     }
@@ -102,10 +103,10 @@ export default function Home() {
 
     setProfile(finalizedProfile);
     try {
-      localStorage.setItem("m23_profile_data", JSON.stringify(finalizedProfile));
-      localStorage.setItem("m23_farm_location", finalizedProfile.farmLocation);
+      localStorage.setItem(STORAGE_KEYS.PROFILE_DATA, JSON.stringify(finalizedProfile));
+      localStorage.setItem(STORAGE_KEYS.FARM_LOCATION, finalizedProfile.farmLocation);
       if (user?.id) {
-        localStorage.setItem(`m23_profile_data_${user.id}`, JSON.stringify(finalizedProfile));
+        localStorage.setItem(`${STORAGE_KEYS.USER_PROFILE_PREFIX}${user.id}`, JSON.stringify(finalizedProfile));
       }
     } catch {
       // Ignore storage errors
@@ -115,7 +116,7 @@ export default function Home() {
   function handleUpdatePreferences(newPrefs: PreferencesData) {
     setPreferences(newPrefs);
     try {
-      localStorage.setItem("m23_preferences_data", JSON.stringify(newPrefs));
+      localStorage.setItem(STORAGE_KEYS.PREFERENCES_DATA, JSON.stringify(newPrefs));
     } catch {
       // Ignore storage errors
     }
@@ -124,7 +125,7 @@ export default function Home() {
   function handleLanguageChange(newLang: Language) {
     setLang(newLang);
     try {
-      localStorage.setItem("m23_app_lang", newLang);
+      localStorage.setItem(STORAGE_KEYS.APP_LANG, newLang);
     } catch {
       // Ignore storage errors
     }
@@ -143,7 +144,7 @@ export default function Home() {
         user.username ||
         "";
 
-      const userStorageKey = `m23_profile_data_${user.id}`;
+      const userStorageKey = `${STORAGE_KEYS.USER_PROFILE_PREFIX}${user.id}`;
       let loadedProfile: ProfileData = profile;
 
       try {
@@ -151,7 +152,7 @@ export default function Home() {
         if (savedUserProf) {
           loadedProfile = JSON.parse(savedUserProf);
         } else {
-          const savedGlobalProf = localStorage.getItem("m23_profile_data");
+          const savedGlobalProf = localStorage.getItem(STORAGE_KEYS.PROFILE_DATA);
           if (savedGlobalProf) {
             loadedProfile = JSON.parse(savedGlobalProf);
           }
@@ -172,9 +173,9 @@ export default function Home() {
 
       setProfile(syncedProfile);
       try {
-        localStorage.setItem("m23_profile_data", JSON.stringify(syncedProfile));
+        localStorage.setItem(STORAGE_KEYS.PROFILE_DATA, JSON.stringify(syncedProfile));
         localStorage.setItem(userStorageKey, JSON.stringify(syncedProfile));
-        localStorage.setItem("m23_farm_location", syncedProfile.farmLocation);
+        localStorage.setItem(STORAGE_KEYS.FARM_LOCATION, syncedProfile.farmLocation);
       } catch {
         // ignore
       }
@@ -187,8 +188,8 @@ export default function Home() {
       if (!e.key || e.newValue === null) return;
       try {
         if (
-          e.key === "m23_profile_data" ||
-          (user && e.key === `m23_profile_data_${user.id}`)
+          e.key === STORAGE_KEYS.PROFILE_DATA ||
+          (user && e.key === `${STORAGE_KEYS.USER_PROFILE_PREFIX}${user.id}`)
         ) {
           const parsed = JSON.parse(e.newValue);
           setProfile((prev) => ({
@@ -200,13 +201,13 @@ export default function Home() {
               parsed.email ||
               prev.email,
           }));
-        } else if (e.key === "m23_farm_location") {
+        } else if (e.key === STORAGE_KEYS.FARM_LOCATION) {
           setProfile((prev) => ({ ...prev, farmLocation: e.newValue || prev.farmLocation }));
-        } else if (e.key === "m23_field_data") {
+        } else if (e.key === STORAGE_KEYS.FIELD_DATA) {
           setFieldData(JSON.parse(e.newValue));
-        } else if (e.key === "m23_preferences_data") {
+        } else if (e.key === STORAGE_KEYS.PREFERENCES_DATA) {
           setPreferences(JSON.parse(e.newValue));
-        } else if (e.key === "m23_app_lang") {
+        } else if (e.key === STORAGE_KEYS.APP_LANG) {
           if (e.newValue === "km" || e.newValue === "en") {
             setLang(e.newValue as Language);
           }
@@ -223,7 +224,7 @@ export default function Home() {
   /* Show welcome screen once per session after sign-in */
   useEffect(() => {
     if (isLoaded && isSignedIn && user) {
-      const key = `m23_welcomed_${user.id}`;
+      const key = `${STORAGE_KEYS.WELCOMED_PREFIX}${user.id}`;
       if (!sessionStorage.getItem(key)) {
         setShowWelcome(true);
         sessionStorage.setItem(key, "1");

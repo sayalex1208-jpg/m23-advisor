@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
+import { auth } from '@clerk/nextjs/server';
 import { ANTHRACNOSE_DIAGNOSIS } from '@/lib/sampleData';
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'សូមចូលគណនីជាមុនសិន (Please sign in to access AI features)' },
+        { status: 401 }
+      );
+    }
+
     const formData = await req.formData();
     const imageFile = formData.get('image') as File;
 
@@ -22,7 +31,7 @@ export async function POST(req: NextRequest) {
     try {
       // Call Google Gemini Vision model with Cambodian Agronomy System Prompt & JSON Schema
       const { text } = await generateText({
-        model: google('gemini-3.5-flash'),
+        model: google('gemini-2.0-flash'),
         system: `
 You are an expert Cambodian agricultural AI specialist focusing on M23 cashew farming. 
 Analyze the provided cashew leaf or fruit photo and return the diagnosis strictly in valid JSON format using the schema below. 

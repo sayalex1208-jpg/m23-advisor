@@ -39,10 +39,25 @@ export default function AiAdvisorScreen({ lang }: AiAdvisorScreenProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const nextIdRef = useRef(1);
+  const objectUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, thinking]);
+
+  // Clean up allocated blob URLs to prevent browser memory leaks
+  useEffect(() => {
+    const urls = objectUrlsRef.current;
+    return () => {
+      urls.forEach((url) => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {
+          // ignore cleanup errors
+        }
+      });
+    };
+  }, []);
 
   function addMessage(msg: Omit<ChatMessage, "id">) {
     const id = nextIdRef.current++;
@@ -66,6 +81,7 @@ export default function AiAdvisorScreen({ lang }: AiAdvisorScreenProps) {
   async function handlePhoto(file: File) {
     if (thinking) return;
     const url = URL.createObjectURL(file);
+    objectUrlsRef.current.push(url);
     addMessage({ kind: "user-photo", photoUrl: url });
     setThinking(true);
 

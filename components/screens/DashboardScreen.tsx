@@ -1,9 +1,11 @@
 "use client";
 
 import BrandLogo from "@/components/common/BrandLogo";
+import WeatherWidget from "@/components/WeatherWidget";
 import type { Language } from "@/types/agronomy";
 import { calculateM23Lifecycle, M23_LIFECYCLE_STAGES } from "@/lib/lifecycle";
 import { formatLocation } from "@/lib/location";
+import { calculateYieldAndProfit } from "@/lib/calculator";
 import type { PreferencesData } from "./SettingsScreen";
 
 export interface FieldDataModel {
@@ -42,16 +44,14 @@ export default function DashboardScreen({
   // Calculations based on shared field data
   const parsedArea = parseFloat(fieldData.area) || 0.6;
   const parsedTrees = parseInt(fieldData.trees) || 180;
-  const yieldPerTree = 18; // kg per tree
-  const pricePerKg = 6500; // Riels per kg (~$1.60)
-  const totalYieldKg = parsedTrees * yieldPerTree;
-  const totalYieldTons = (totalYieldKg / 1000).toFixed(1);
-  const totalRevenueRiels = totalYieldKg * pricePerKg;
-  const totalRevenueUSD = (totalRevenueRiels / 4100).toFixed(0);
-  const costPercent = 0.20;
-  const estimatedCostRiels = totalRevenueRiels * costPercent;
-  const netProfitRiels = totalRevenueRiels - estimatedCostRiels;
-  const netProfitUSD = (netProfitRiels / 4100).toFixed(0);
+  const {
+    totalYieldTons,
+    totalRevenueRiels,
+    totalRevenueUSD,
+    estimatedCostRiels,
+    netProfitRiels,
+    netProfitUSD,
+  } = calculateYieldAndProfit({ trees: parsedTrees });
 
   const fieldDisplayName = fieldData.fieldName || (lang === "km" ? "ការដាំ M23" : "M23 Planting");
 
@@ -464,40 +464,7 @@ export default function DashboardScreen({
 
       {/* ── LOCATION & WEATHER ALERT (Controlled by preferences.weatherAlerts) ── */}
       {preferences?.weatherAlerts !== false ? (
-        <div
-          className="rounded-2xl p-4 flex items-start gap-3 shadow-sm"
-          style={{
-            backgroundColor: "var(--warning-bg)",
-            border: "1px solid rgba(212, 175, 55, 0.4)",
-          }}
-        >
-          <span className="text-xl shrink-0 mt-0.5">📍</span>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#d4af37]">
-                {lang === "km" ? "ការជូនដំណឹងទីតាំង និងអាកាសធាតុ" : "Location & Weather Alert"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#3d3210] text-[#d4af37] font-semibold border border-[#d4af37]/30">
-                {lang === "km" ? "ផ្សាយបន្តផ្ទាល់" : "Live Weather"}
-              </span>
-            </div>
-
-            <div className="text-xs font-semibold mt-1" style={{ color: "var(--text)" }}>
-              {lang === "km"
-                ? `${formatLocation(location, "km")} · សីតុណ្ហភាព 32°C · សំណើម 68%`
-                : `${formatLocation(location, "en")} · 32°C · Humidity 68%`}
-            </div>
-
-            <div className="text-xs mt-1.5 p-2 rounded-lg bg-[#1e1906] border border-[#d4af37]/30 flex items-center gap-2">
-              <span className="text-sm">⚠️</span>
-              <span className="text-[11px] font-medium text-[#d4af37]">
-                {lang === "km"
-                  ? "ការព្យាករណ៍ភ្លៀង ថ្ងៃស្អែក — ជៀសវាងបាញ់ថ្នាំលើផ្កា"
-                  : "Rain forecast tomorrow — avoid foliar spraying on flower panicles"}
-              </span>
-            </div>
-          </div>
-        </div>
+        <WeatherWidget location={location} lang={lang} />
       ) : (
         <div
           className="rounded-2xl p-3.5 flex items-center justify-between shadow-sm border border-zinc-800 bg-zinc-900/30 text-xs"

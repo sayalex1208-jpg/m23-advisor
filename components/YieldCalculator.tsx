@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Language } from "@/types/agronomy";
+import { calculateYieldAndProfit } from "@/lib/calculator";
 
 interface YieldCalculatorProps {
   lang: Language;
@@ -14,15 +15,19 @@ export default function YieldCalculator({ lang }: YieldCalculatorProps) {
   const [pricePerKg, setPricePerKg] = useState<number>(6500); // Riels per kg (~$1.60)
 
   const totalTrees = Math.round(hectares * treesPerHa);
-  const totalYieldKg = totalTrees * yieldPerTree;
-  const totalYieldTons = (totalYieldKg / 1000).toFixed(2);
-  const totalRevenueRiels = totalYieldKg * pricePerKg;
-  const totalRevenueUSD = (totalRevenueRiels / 4100).toFixed(2);
-  
-  // Estimated cost (~20% for NPK, pest control, pruning)
-  const estimatedCostRiels = totalRevenueRiels * 0.20;
-  const netProfitRiels = totalRevenueRiels - estimatedCostRiels;
-  const netProfitUSD = (netProfitRiels / 4100).toFixed(2);
+  const {
+    totalYieldKg,
+    totalYieldTons,
+    totalRevenueRiels,
+    totalRevenueUSD,
+    estimatedCostRiels,
+    netProfitRiels,
+    netProfitUSD,
+  } = calculateYieldAndProfit({
+    trees: totalTrees,
+    yieldPerTree,
+    pricePerKg,
+  });
 
   return (
     <div

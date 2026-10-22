@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
+import { auth } from '@clerk/nextjs/server';
 import { getChatResponse } from '@/lib/sampleData';
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'សូមចូលគណនីជាមុនសិន (Please sign in to access AI features)' },
+        { status: 401 }
+      );
+    }
+
     const { message } = await req.json();
 
     if (!message || typeof message !== 'string') {
@@ -25,7 +34,7 @@ KNOWLEDGE BASE & GUIDELINES:
     `;
 
       const { text } = await generateText({
-        model: google('gemini-3.5-flash'),
+        model: google('gemini-2.0-flash'),
         system: systemPrompt,
         prompt: message,
       });
