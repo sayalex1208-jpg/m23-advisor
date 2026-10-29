@@ -65,6 +65,7 @@ const content = {
       "Get AI-powered advice on cashew cultivation, disease diagnosis, yield estimation, and weather-smart farming — all tailored for Cambodia.",
     signIn: "Sign In",
     createAccount: "Create Account",
+    continueAsGuest: "Explore as Guest",
     footer: "Empowering farmers with technology",
   },
   km: {
@@ -73,12 +74,17 @@ const content = {
       "ទទួលបានការប្រឹក្សាដោយ AI អំពីការដាំស្វាយចន្ទី ការវិនិច្ឆ័យជំងឺ ការប៉ាន់ស្មានទិន្នផល និងកសិកម្មតាមអាកាសធាតុ — សម្រាប់កម្ពុជា។",
     signIn: "ចូលគណនី",
     createAccount: "បង្កើតគណនី",
+    continueAsGuest: "សាកល្បងជាភ្ញៀវ",
     footer: "ពង្រឹងកសិករដោយបច្ចេកវិទ្យា",
   },
 };
 
+interface WelcomeScreenProps {
+  onContinueAsGuest?: () => void;
+}
+
 /* ─── Main Welcome Screen ─── */
-export default function WelcomeScreen() {
+export default function WelcomeScreen({ onContinueAsGuest }: WelcomeScreenProps) {
   const [lang, setLang] = useState<Language>("km");
   const t = content[lang];
 
@@ -172,6 +178,22 @@ export default function WelcomeScreen() {
         >
           {t.createAccount}
         </Link>
+
+        {/* Continue as Guest — Tertiary */}
+        {onContinueAsGuest && (
+          <button
+            onClick={onContinueAsGuest}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-semibold transition-all duration-200 hover:bg-white/5 active:scale-[0.98] cursor-pointer"
+            style={{
+              color: "var(--text)",
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <span>👤</span>
+            <span>{t.continueAsGuest}</span>
+          </button>
+        )}
 
         {/* Footer text */}
         <p

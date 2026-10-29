@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { sendChatMessage } from "@/lib/api/chat";
 import { diagnoseImage } from "@/lib/api/diagnose";
 import DiagnosisCard from "@/components/DiagnosisCard";
+import CashewHandbookReader from "@/components/CashewHandbookReader";
 import type { ChatMessage } from "@/types/chat";
 import type { Language } from "@/types/agronomy";
 
@@ -36,6 +37,7 @@ export default function AiAdvisorScreen({ lang }: AiAdvisorScreenProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [showHandbook, setShowHandbook] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const nextIdRef = useRef(1);
@@ -102,7 +104,25 @@ export default function AiAdvisorScreen({ lang }: AiAdvisorScreenProps) {
   const showEmpty = messages.length === 0 && !thinking;
 
   return (
-    <div className="flex flex-col tab-content" style={{ height: "calc(100vh - 150px)" }}>
+    <div className="flex flex-col tab-content relative" style={{ height: "calc(100vh - 150px)" }}>
+      {/* ── TOP ADVISOR HEADER WITH HANDBOOK QUICK ACCESS ── */}
+      <div className="flex items-center justify-between pb-2 mb-1 border-b border-white/5 shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#27a645] animate-pulse" />
+          <span className="text-xs font-bold text-white">
+            {lang === "km" ? "ជំនួយការ AI ស្វាយចន្ទី M23" : "M23 Cashew AI Advisor"}
+          </span>
+        </div>
+        <button
+          onClick={() => setShowHandbook(true)}
+          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#27a645]/15 text-[#27a645] border border-[#27a645]/30 hover:bg-[#27a645]/25 transition-colors flex items-center gap-1.5"
+          title={lang === "km" ? "បើកសៀវភៅណែនាំបច្ចេកទេស" : "Open Cashew Handbook"}
+        >
+          <span>📖</span>
+          <span>{lang === "km" ? "សៀវភៅណែនាំ M23" : "Handbook"}</span>
+        </button>
+      </div>
+
       {/* ── MESSAGES HISTORY AREA ── */}
       <div className="flex-1 overflow-y-auto space-y-3.5 no-scrollbar pb-3 px-0.5">
         {showEmpty && (
@@ -371,6 +391,23 @@ export default function AiAdvisorScreen({ lang }: AiAdvisorScreenProps) {
           </button>
         </div>
       </div>
+
+      {/* ── CASHEW HANDBOOK MODAL ── */}
+      {showHandbook && (
+        <CashewHandbookReader
+          lang={lang}
+          isModal
+          onClose={() => setShowHandbook(false)}
+          onAskAI={(topic) => {
+            setShowHandbook(false);
+            handleSend(
+              lang === "km"
+                ? `សូមពន្យល់លម្អិតបន្ថែមពីបច្ចេកទេស៖ ${topic}`
+                : `Please explain more technical details about: ${topic}`
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -12,6 +12,7 @@
     "@ai-sdk/google": "^4.0.87",
     "@ai-sdk/openai": "^4.0.78",
     "@clerk/nextjs": "^7.9.7",
+    "@supabase/supabase-js": "^2.118.0",
     "ai": "^7.0.118",
     "next": "15.3.4",
     "react": "^19.0.0",

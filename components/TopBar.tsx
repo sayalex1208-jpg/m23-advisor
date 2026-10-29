@@ -8,9 +8,10 @@ import type { Language } from "@/types/agronomy";
 interface TopBarProps {
   lang: Language;
   onToggleLang: () => void;
+  isGuest?: boolean;
 }
 
-export default function TopBar({ lang, onToggleLang }: TopBarProps) {
+export default function TopBar({ lang, onToggleLang, isGuest }: TopBarProps) {
   const { isSignedIn, isLoaded } = useUser();
 
   return (
@@ -25,9 +26,14 @@ export default function TopBar({ lang, onToggleLang }: TopBarProps) {
       <div className="flex items-center gap-3">
         <BrandLogo size="md" />
         <div>
-          <div className="font-bold text-sm" style={{ color: "var(--text)" }}>
-            M23 Advisor
-            <span style={{ color: "var(--accent)" }} className="font-semibold ml-1 text-xs">
+          <div className="font-bold text-sm flex items-center gap-1.5" style={{ color: "var(--text)" }}>
+            <span>M23 Advisor</span>
+            {isGuest && (
+              <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-950 text-amber-300 border border-amber-600/30 font-bold">
+                {lang === "km" ? "ភ្ញៀវ" : "Guest"}
+              </span>
+            )}
+            <span style={{ color: "var(--accent)" }} className="font-semibold text-xs">
               · កើនផល · កើនលុយ
             </span>
           </div>

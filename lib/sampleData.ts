@@ -1,6 +1,7 @@
 
 import type { ChatResponse } from '@/types/chat';
 import type { DiagnosisResponse } from '@/types/diagnosis';
+import { searchHandbook } from '@/lib/cashewHandbook';
 
 export type { ChatResponse, DiagnosisResponse };
 
@@ -427,6 +428,19 @@ const DEFAULT_RESPONSE: ChatResponse = {
 
 export function getChatResponse(userInput: string): ChatResponse {
   if (!userInput.trim()) return DEFAULT_RESPONSE;
+
+  // 1. First check official Cashew Handbook sections
+  const handbookMatches = searchHandbook(userInput);
+  if (handbookMatches.length > 0) {
+    const top = handbookMatches[0];
+    const bullets = top.keyPointsKm?.slice(0, 3).map((k) => `• ${k}`).join("\n") || "";
+    const warning = top.warningKm ? `\n\n⚠️ ${top.warningKm}` : "";
+    return {
+      reply_km: `[សៀវភៅណែនាំបច្ចេកទេស M23 - ${top.titleKm}]\n\n${top.contentKm}${bullets ? "\n\n" + bullets : ""}${warning}`,
+      gloss_en: `[Official M23 Handbook - ${top.titleEn}]\n\n${top.contentEn}${top.warningEn ? "\n\n⚠️ " + top.warningEn : ""}`,
+    };
+  }
+
   let bestScore = 0;
   let best: QAPair | null = null;
   for (const pair of QA_PAIRS) {

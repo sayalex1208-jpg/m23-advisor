@@ -43,6 +43,7 @@ export default function Home() {
   const [lang, setLang] = useState<Language>("km");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [showWelcome, setShowWelcome] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Persistent state for field data, profile, and preferences
   const [fieldData, setFieldData] = useState<FieldDataModel>(DEFAULT_FIELD_DATA);
@@ -56,6 +57,11 @@ export default function Home() {
       const savedLang = localStorage.getItem(STORAGE_KEYS.APP_LANG) as Language | null;
       if (savedLang === "km" || savedLang === "en") {
         setLang(savedLang);
+      }
+
+      const savedGuest = localStorage.getItem("m23_guest_mode");
+      if (savedGuest === "1") {
+        setIsGuest(true);
       }
 
       const savedField = localStorage.getItem(STORAGE_KEYS.FIELD_DATA);
@@ -130,6 +136,40 @@ export default function Home() {
       // Ignore storage errors
     }
   }
+
+  function handleContinueAsGuest() {
+    setIsGuest(true);
+    try {
+      localStorage.setItem("m23_guest_mode", "1");
+      localStorage.removeItem(STORAGE_KEYS.PROFILE_DATA);
+      localStorage.removeItem(STORAGE_KEYS.FARM_LOCATION);
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  function handleExitGuest() {
+    setIsGuest(false);
+    try {
+      localStorage.removeItem("m23_guest_mode");
+      localStorage.removeItem(STORAGE_KEYS.PROFILE_DATA);
+      localStorage.removeItem(STORAGE_KEYS.FARM_LOCATION);
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  // Clear guest mode if user successfully signed in
+  useEffect(() => {
+    if (isSignedIn && isGuest) {
+      setIsGuest(false);
+      try {
+        localStorage.removeItem("m23_guest_mode");
+      } catch {
+        // Ignore
+      }
+    }
+  }, [isSignedIn, isGuest]);
 
   // Sync profile with authenticated user credentials upon login
   useEffect(() => {
@@ -255,19 +295,28 @@ export default function Home() {
     );
   }
 
-  // Show welcome/onboarding screen for unauthenticated users
-  if (!isSignedIn) {
-    return <WelcomeScreen />;
+  // Show welcome/onboarding screen for unauthenticated users (unless exploring as guest)
+  if (!isSignedIn && !isGuest) {
+    return <WelcomeScreen onContinueAsGuest={handleContinueAsGuest} />;
   }
 
   function renderScreen() {
+    const activeProfile: ProfileData = isGuest
+      ? {
+          username: lang === "km" ? "ភ្ញៀវកសិករ" : "Guest Farmer",
+          phone: "—",
+          email: "—",
+          farmLocation: "Kampong Cham",
+        }
+      : profile;
+
     switch (activeTab) {
       case "dashboard":
         return (
           <DashboardScreen
             lang={lang}
             fieldData={fieldData}
-            location={profile.farmLocation}
+            location={activeProfile.farmLocation}
             preferences={preferences}
           />
         );
@@ -277,7 +326,7 @@ export default function Home() {
             lang={lang}
             fieldData={fieldData}
             onSaveFieldData={handleSaveFieldData}
-            location={profile.farmLocation}
+            location={activeProfile.farmLocation}
           />
         );
       case "ai-advisor":
@@ -287,10 +336,12 @@ export default function Home() {
           <SettingsScreen
             lang={lang}
             onLangChange={handleLanguageChange}
-            profile={profile}
+            profile={activeProfile}
             onSaveProfile={handleSaveProfile}
             preferences={preferences}
             onUpdatePreferences={handleUpdatePreferences}
+            isGuest={isGuest}
+            onExitGuest={handleExitGuest}
           />
         );
       default:
@@ -298,7 +349,7 @@ export default function Home() {
           <DashboardScreen
             lang={lang}
             fieldData={fieldData}
-            location={profile.farmLocation}
+            location={activeProfile.farmLocation}
             preferences={preferences}
           />
         );
@@ -321,6 +372,7 @@ export default function Home() {
         <TopBar
           lang={lang}
           onToggleLang={() => handleLanguageChange(lang === "km" ? "en" : "km")}
+          isGuest={isGuest}
         />
 
         {/* Scrollable Viewport with tab content */}

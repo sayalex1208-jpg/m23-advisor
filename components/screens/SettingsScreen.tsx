@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useUser, useClerk } from "@clerk/nextjs";
 import type { Language } from "@/types/agronomy";
 
@@ -24,6 +25,8 @@ interface SettingsScreenProps {
   onSaveProfile: (profile: ProfileData) => void;
   preferences: PreferencesData;
   onUpdatePreferences: (prefs: PreferencesData) => void;
+  isGuest?: boolean;
+  onExitGuest?: () => void;
 }
 
 function ToggleSwitch({
@@ -53,14 +56,17 @@ export default function SettingsScreen({
   onSaveProfile,
   preferences,
   onUpdatePreferences,
+  isGuest,
+  onExitGuest,
 }: SettingsScreenProps) {
   const { user } = useUser();
   const { signOut } = useClerk();
 
-  const authEmail =
-    user?.primaryEmailAddress?.emailAddress ||
-    user?.emailAddresses?.[0]?.emailAddress ||
-    profile.email;
+  const authEmail = isGuest
+    ? ""
+    : (user?.primaryEmailAddress?.emailAddress ||
+       user?.emailAddresses?.[0]?.emailAddress ||
+       profile.email);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [editProfile, setEditProfile] = useState<ProfileData>({
@@ -164,6 +170,18 @@ export default function SettingsScreen({
   async function handleLogout() {
     setLoggingOut(true);
     try {
+      localStorage.removeItem("m23_guest_mode");
+      localStorage.removeItem("m23_profile_data");
+      localStorage.removeItem("m23_farm_location");
+    } catch {
+      // ignore
+    }
+
+    if (isGuest && onExitGuest) {
+      onExitGuest();
+      return;
+    }
+    try {
       await signOut();
     } catch {
       // ignore
@@ -207,58 +225,90 @@ export default function SettingsScreen({
         </div>
       )}
 
-      {/* ── GOOGLE / AUTH ACCOUNT SECTION ── */}
-      <div
-        className="rounded-2xl p-4 shadow-sm"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-        }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <div className="font-bold text-sm flex items-center gap-2" style={{ color: "var(--text)" }}>
-            <span className="text-base">🔐</span>
-            <span>{lang === "km" ? "គណនីចូលប្រើប្រាស់ (Account)" : "Google Account"}</span>
+      {/* ── GUEST MODE BANNER ── */}
+      {isGuest && (
+        <div
+          className="rounded-2xl p-4 shadow-sm"
+          style={{
+            backgroundColor: "#2a1c06",
+            border: "1px solid rgba(251, 191, 36, 0.4)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+              <span>👤</span>
+              <span>{lang === "km" ? "របៀបភ្ញៀវ (សាកល្បង)" : "Guest Exploration Mode"}</span>
+            </span>
+            <Link
+              href="/sign-in"
+              className="text-[10px] px-2.5 py-1 rounded-lg font-bold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "var(--accent)" }}
+            >
+              {lang === "km" ? "ចូលគណនី" : "Sign In"}
+            </Link>
           </div>
-          <span
-            className="text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1"
-            style={{
-              backgroundColor: "rgba(39, 166, 69, 0.15)",
-              color: "#27a645",
-              border: "1px solid rgba(39, 166, 69, 0.3)",
-            }}
-          >
-            <span>✓</span>
-            <span>{lang === "km" ? "ផ្ទៀងផ្ទាត់រួច" : "Verified"}</span>
-          </span>
+          <p className="text-xs text-amber-200/80 leading-relaxed">
+            {lang === "km"
+              ? "អ្នកកំពុងប្រើប្រាស់ជាភ្ញៀវ។ បង្កើតគណនី ឬចូលគណនី ដើម្បីរក្សាទុកទិន្នន័យចម្ការរបស់អ្នកទៅលើ Cloud ជារៀងរហូត។"
+              : "You are exploring as a guest. Create an account or sign in to save your orchard data permanently."}
+          </p>
         </div>
+      )}
 
-        <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-3">
-          {user?.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={user.imageUrl}
-              alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover border border-[#27a645]/40 shrink-0"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-[#1e2920] text-[#27a645] border border-[#27a645]/30 shrink-0">
-              {(authEmail[0] || "G").toUpperCase()}
+      {/* ── GOOGLE / AUTH ACCOUNT SECTION (Only for authenticated users) ── */}
+      {!isGuest && (
+        <div
+          className="rounded-2xl p-4 shadow-sm"
+          style={{
+            backgroundColor: "var(--card)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="font-bold text-sm flex items-center gap-2" style={{ color: "var(--text)" }}>
+              <span className="text-base">🔐</span>
+              <span>{lang === "km" ? "គណនីចូលប្រើប្រាស់ (Account)" : "Google Account"}</span>
             </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-medium" style={{ color: "var(--muted)" }}>
-              {lang === "km" ? "បានចូលប្រើប្រាស់ជា:" : "Logged in as:"}
-            </div>
-            <div className="text-xs font-bold text-white truncate" title={authEmail}>
-              {authEmail}
-            </div>
-            <div className="text-[10px] text-zinc-500 mt-0.5">
-              {lang === "km" ? "ភ្ជាប់ជាមួយគណនីចូល (អ៊ីមែលអានប៉ុណ្ណោះ)" : "Linked via Google Auth · Read-only email"}
+            <span
+              className="text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1"
+              style={{
+                backgroundColor: "rgba(39, 166, 69, 0.15)",
+                color: "#27a645",
+                border: "1px solid rgba(39, 166, 69, 0.3)",
+              }}
+            >
+              <span>✓</span>
+              <span>{lang === "km" ? "ផ្ទៀងផ្ទាត់រួច" : "Verified"}</span>
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-3">
+            {user?.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.imageUrl}
+                alt="Avatar"
+                className="w-10 h-10 rounded-full object-cover border border-[#27a645]/40 shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-[#1e2920] text-[#27a645] border border-[#27a645]/30 shrink-0">
+                {(authEmail[0] || "U").toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] font-medium" style={{ color: "var(--muted)" }}>
+                {lang === "km" ? "បានចូលប្រើប្រាស់ជា:" : "Logged in as:"}
+              </div>
+              <div className="text-xs font-bold text-white truncate" title={authEmail}>
+                {authEmail || "User"}
+              </div>
+              <div className="text-[10px] text-zinc-500 mt-0.5">
+                {lang === "km" ? "ភ្ជាប់ជាមួយគណនីចូល (អ៊ីមែលអានប៉ុណ្ណោះ)" : "Linked via Google Auth · Read-only email"}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ── PROFILE SECTION ── */}
       <div
@@ -273,7 +323,7 @@ export default function SettingsScreen({
             <span>👤</span>
             <span>{lang === "km" ? "ព័ត៌មានប្រវត្តិរូប" : "Farmer Profile"}</span>
           </div>
-          {!editingProfile && (
+          {!editingProfile && !isGuest && (
             <button
               onClick={handleStartEdit}
               className="text-xs font-semibold flex items-center gap-1 transition cursor-pointer hover:underline"
@@ -284,6 +334,11 @@ export default function SettingsScreen({
               </svg>
               <span>{lang === "km" ? "កែសម្រួល" : "Edit Profile"}</span>
             </button>
+          )}
+          {isGuest && (
+            <span className="text-[10px] text-amber-400 font-semibold">
+              {lang === "km" ? "របៀបភ្ញៀវ (អានប៉ុណ្ណោះ)" : "Guest Mode (Read-only)"}
+            </span>
           )}
         </div>
 

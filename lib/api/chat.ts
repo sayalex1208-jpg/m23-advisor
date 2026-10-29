@@ -3,10 +3,17 @@ import { getChatResponse } from "@/lib/sampleData";
 
 export async function sendChatMessage(message: string): Promise<ChatResponse> {
   try {
+    const isGuest =
+      typeof window !== "undefined" &&
+      localStorage.getItem("m23_guest_mode") === "1";
+
     const res = await fetch("/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      headers: {
+        "Content-Type": "application/json",
+        ...(isGuest ? { "x-guest-mode": "1" } : {}),
+      },
+      body: JSON.stringify({ message, isGuest }),
     });
 
     const data = await res.json();
