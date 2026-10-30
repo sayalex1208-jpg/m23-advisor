@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     try {
       // Call Google Gemini Vision model with Cambodian Agronomy System Prompt & JSON Schema
       const { text } = await generateText({
-        model: google('gemini-3.8-flash'),
+        model: google('gemini-3.5-flash-lite'),
         system: `
 You are an expert Cambodian agricultural AI specialist focusing on M23 cashew farming. 
 Analyze the provided cashew leaf or fruit photo and return the diagnosis strictly in valid JSON format using the schema below. 

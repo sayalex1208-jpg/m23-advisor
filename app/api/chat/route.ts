@@ -47,7 +47,7 @@ INSTRUCTIONS FOR RESPONDING:
 `;
 
       const { text } = await generateText({
-        model: google('gemini-3.8-flash'),
+        model: google('gemini-3.5-flash-lite'),
         system: systemPrompt,
         prompt: message,
       });
