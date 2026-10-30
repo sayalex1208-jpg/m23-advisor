@@ -7,9 +7,11 @@ import { ANTHRACNOSE_DIAGNOSIS } from '@/lib/sampleData';
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
-    if (!userId) {
+    const isGuest = req.headers.get('x-guest-mode') === '1';
+
+    if (!userId && !isGuest) {
       return NextResponse.json(
-        { error: 'សូមចូលគណនីជាមុនសិន (Please sign in to access AI features)' },
+        { error: 'សូមចូលគណនីជាមុនសិន ឬប្រើប្រាស់ជាភ្ញៀវ (Please sign in or use guest mode to diagnose)' },
         { status: 401 }
       );
     }

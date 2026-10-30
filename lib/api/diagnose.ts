@@ -3,11 +3,16 @@ import { ANTHRACNOSE_DIAGNOSIS } from "@/lib/sampleData";
 
 export async function diagnoseImage(file: File): Promise<DiagnosisResponse> {
   try {
+    const isGuest =
+      typeof window !== "undefined" &&
+      localStorage.getItem("m23_guest_mode") === "1";
+
     const formData = new FormData();
     formData.append("image", file);
 
     const res = await fetch("/api/diagnose", {
       method: "POST",
+      headers: isGuest ? { "x-guest-mode": "1" } : {},
       body: formData,
     });
 
