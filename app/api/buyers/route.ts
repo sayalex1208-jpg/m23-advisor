@@ -3,6 +3,9 @@ import fs from "fs/promises";
 import path from "path";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const DATA_FILE = path.join(process.cwd(), "data", "buyers.json");
 
 let inMemoryBuyers: any[] = [];
